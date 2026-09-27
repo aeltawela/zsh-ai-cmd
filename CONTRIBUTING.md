@@ -16,6 +16,7 @@ submitting:
     ./test-api-key-command.sh          # API key retrieval
     ./test-openai-base-url.sh          # custom base URL
     ./test-sanitize.sh                 # output sanitization
+    ./test-command-syntax.sh           # generated command syntax validation
 
 Run whichever scripts are relevant to your change.
 
