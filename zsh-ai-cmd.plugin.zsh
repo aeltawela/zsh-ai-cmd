@@ -101,6 +101,7 @@ _zsh_ai_cmd_sanitize() {
 # System Prompt and Providers
 # ============================================================================
 source "${0:a:h}/prompt.zsh"
+source "${0:a:h}/shell-syntax.zsh"
 source "${0:a:h}/providers/anthropic.zsh"
 source "${0:a:h}/providers/openai.zsh"
 source "${0:a:h}/providers/ollama.zsh"
@@ -334,6 +335,11 @@ _zsh_ai_cmd_suggest() {
     flag=${line[1]}
     cmd=$(_zsh_ai_cmd_sanitize "${line#?$'\t'}")
     [[ -z $cmd ]] && continue
+    # Reject incomplete shell syntax before it reaches the interactive buffer.
+    if ! _zsh_ai_cmd_is_valid_syntax "$cmd"; then
+      [[ $ZSH_AI_CMD_DEBUG == true ]] && print -- "rejecting syntactically invalid suggestion: $cmd" >> $ZSH_AI_CMD_LOG
+      continue
+    fi
     existing=${suggestions[(Ie)$cmd]}
     if (( existing )); then
       # Duplicate command with contradictory flags: keep the destructive one
