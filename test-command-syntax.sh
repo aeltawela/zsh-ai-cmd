@@ -65,6 +65,17 @@ run_test "ksh_arrays: continuation is rejected" 'echo "x" \' 1 ksh_arrays
 run_test "ksh_arrays: trailing && is rejected" 'echo a &&' 1 ksh_arrays
 run_test "ksh_arrays: heredoc is rejected" 'cat <<EOF' 1 ksh_arrays
 run_test "ksh_arrays: valid command is accepted" 'echo a && ls' 0 ksh_arrays
+run_test "comment with apostrophe is rejected" "ls -la # don't show hidden" 1
+run_test "comment after trailing && is rejected" 'make && # then deploy' 1
+run_test "interactive_comments: comment is rejected" 'make && # then deploy' 1 interactive_comments
+# Any comment is rejected, including one that would otherwise be harmless
+run_test "comment containing << is rejected" 'git log --oneline # compare <<older' 1
+run_test "# inside a word is accepted" 'echo a#b' 0
+run_test "\${#x} length is accepted" 'echo ${#x}' 0
+run_test "\$# argument count is accepted" 'echo $#' 0
+run_test "# inside single quotes is accepted" "print -P '%F{red}#x'" 0
+run_test "# inside quoted option is accepted" "git log --format='%h #%s'" 0
+run_test "ksh_arrays: # inside a word is accepted" 'echo a#b' 0 ksh_arrays
 print "============================================="
 print "Results: $PASS passed, $FAIL failed"
 ((FAIL > 0)) && exit 1
