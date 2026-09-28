@@ -37,6 +37,24 @@ run_test "unclosed double quote is rejected" 'echo "hello' 1
 run_test "unclosed single quote is rejected" "echo 'hello" 1
 run_test "dangling continuation is rejected" $'echo hello \\' 1
 run_test "escaped trailing backslashes are accepted" 'echo hello \\\\' 0
+run_test "trailing && is rejected" 'echo a &&' 1
+run_test "trailing && with spaces is rejected" 'echo a &&   ' 1
+run_test "trailing && without space is rejected" 'echo a&&' 1
+run_test "trailing || is rejected" 'echo a ||' 1
+run_test "&& between commands is accepted" 'echo a && ls' 0
+run_test "|| between commands is accepted" 'echo a || true' 0
+run_test "background & is accepted" 'echo a &' 0
+run_test "quoted trailing && is accepted" 'echo "&&"' 0
+run_test "heredoc is rejected" 'cat <<EOF' 1
+run_test "heredoc without space is rejected" 'cat<<EOF' 1
+run_test "tab-stripping heredoc is rejected" 'cat <<-EOF' 1
+run_test "fd-prefixed heredoc is rejected" 'cat 0<<EOF' 1
+run_test "heredoc mid-pipeline is rejected" 'cat <<EOF | wc -l' 1
+run_test "here-string is accepted" 'cat <<< "hi"' 0
+run_test "here-string without space is accepted" 'cat <<<hi' 0
+run_test "quoted << is accepted" 'echo "a << b"' 0
+run_test "arithmetic shift is accepted" 'echo $(( 1 << 2 ))' 0
+run_test "arithmetic command shift is accepted" '(( x = 1 << 2 ))' 0
 print "============================================="
 print "Results: $PASS passed, $FAIL failed"
 ((FAIL > 0)) && exit 1
