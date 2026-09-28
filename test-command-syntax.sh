@@ -15,10 +15,16 @@ PASS=0
 FAIL=0
 
 run_test() {
-  local name=$1 command_text=$2 expected=$3
+  local name=$1 command_text=$2 expected=$3 user_option=${4:-}
   local actual=0
 
-  _zsh_ai_cmd_is_valid_syntax "$command_text" || actual=1
+  # The optional user_option is set in a subshell to mimic an interactive
+  # shell's options without leaking into later tests.
+  if [[ -n $user_option ]]; then
+    ( setopt "$user_option"; _zsh_ai_cmd_is_valid_syntax "$command_text" ) || actual=1
+  else
+    _zsh_ai_cmd_is_valid_syntax "$command_text" || actual=1
+  fi
 
   printf "%-45s " "$name"
   if (( actual == expected )); then
@@ -55,6 +61,10 @@ run_test "here-string without space is accepted" 'cat <<<hi' 0
 run_test "quoted << is accepted" 'echo "a << b"' 0
 run_test "arithmetic shift is accepted" 'echo $(( 1 << 2 ))' 0
 run_test "arithmetic command shift is accepted" '(( x = 1 << 2 ))' 0
+run_test "ksh_arrays: continuation is rejected" 'echo "x" \' 1 ksh_arrays
+run_test "ksh_arrays: trailing && is rejected" 'echo a &&' 1 ksh_arrays
+run_test "ksh_arrays: heredoc is rejected" 'cat <<EOF' 1 ksh_arrays
+run_test "ksh_arrays: valid command is accepted" 'echo a && ls' 0 ksh_arrays
 print "============================================="
 print "Results: $PASS passed, $FAIL failed"
 ((FAIL > 0)) && exit 1
