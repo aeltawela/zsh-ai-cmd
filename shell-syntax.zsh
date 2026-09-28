@@ -3,6 +3,9 @@
 # input as closing some unfinished constructs that leave an interactive shell
 # waiting for more lines after Enter, so those are rejected before parsing.
 _zsh_ai_cmd_is_valid_syntax() {
+  # Runs inside the user's interactive shell, where options such as ksh_arrays
+  # change indexing and globbing. The helpers below inherit these local options.
+  emulate -L zsh
   _zsh_ai_cmd_ends_in_escaped_newline "$1" && return 1
 
   # Shell-lexer words: quoted strings and $(( )) arithmetic stay single words,
