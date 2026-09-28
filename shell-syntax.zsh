@@ -11,6 +11,7 @@ _zsh_ai_cmd_is_valid_syntax() {
   # Shell-lexer words: quoted strings and $(( )) arithmetic stay single words,
   # so operators inside them are not mistaken for top-level operators.
   local -a words=(${(z)1})
+  _zsh_ai_cmd_has_comment "${words[@]}" && return 1
   _zsh_ai_cmd_ends_in_list_operator "${words[-1]:-}" && return 1
   _zsh_ai_cmd_has_heredoc "${words[@]}" && return 1
 
@@ -26,6 +27,20 @@ _zsh_ai_cmd_ends_in_escaped_newline() {
     index=$(( index - 1 ))
   done
   (( trailing_backslashes % 2 == 1 ))
+}
+
+# Whether # starts a comment depends on the user's interactive_comments
+# setting: with it off, text after # is parsed as arguments and an apostrophe
+# there opens a quote; with it on, the comment hides whatever it follows, such
+# as a trailing &&. A comment cannot be validated either way and a suggestion
+# has no need for one. The lexer keeps # inside quotes, ${#x}, $#, and a#b in
+# a larger word, so only a word starting with # marks a comment.
+_zsh_ai_cmd_has_comment() {
+  local word
+  for word in "$@"; do
+    [[ $word == '#'* ]] && return 0
+  done
+  return 1
 }
 
 # A final && or || leaves the shell at a cmdand> or cmdor> prompt.

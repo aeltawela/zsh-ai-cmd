@@ -6,7 +6,7 @@ typeset -g _ZSH_AI_CMD_PROMPT='Translate natural language to a single shell comm
 
 RULES:
 - Output EXACTLY ONE command, nothing else
-- Keep the command on a single line: no heredocs (<<), write text with printf or echo and a redirection instead
+- Keep the command on a single line with no # comments and no heredocs (<<); write text with printf or echo and a redirection instead
 - No explanations, no alternatives, no markdown
 - No code blocks, no backticks
 - If ambiguous, pick the most reasonable interpretation
