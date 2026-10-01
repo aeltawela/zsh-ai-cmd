@@ -46,6 +46,12 @@ tinted red and marked with `⚠` so you notice before accepting. Providers
 without structured output (`copilot`, `claude-code`) return a single
 suggestion and can't flag destructive commands.
 
+Suggestions that would leave your shell waiting for more input after Enter
+(an unclosed quote or block, a trailing `&&` or `||`, a trailing backslash, a
+heredoc, or a `#` comment) are dropped before they are shown. If every
+suggestion is dropped, the prompt shows `zsh-ai-cmd: no suggestion`; press
+`Ctrl+Z` again to ask for a new one.
+
 ## Configuration
 
 ```sh
@@ -63,7 +69,10 @@ ZSH_AI_CMD_KEYCHAIN_NAME='${provider}-api-key'  # Or use a fixed name: 'my-api-k
 ZSH_AI_CMD_API_KEY_COMMAND=''    # Command to get API key, e.g., 'secret-tool lookup service ${provider}'
 
 # Provider-specific models (defaults shown)
-ZSH_AI_CMD_ANTHROPIC_MODEL='claude-haiku-4-5-20251001'
+ZSH_AI_CMD_ANTHROPIC_MODEL='claude-opus-5-5'
+                                             # Cheaper, faster: ZSH_AI_CMD_ANTHROPIC_MODEL='claude-haiku-4-5-20251001'
+ZSH_AI_CMD_ANTHROPIC_EFFORT='low'            # Thinking effort: low, medium, high, xhigh, max; set to '' to send none
+                                             # Ignored for Haiku and Sonnet 4.5 models, which reject it
 ZSH_AI_CMD_OPENAI_MODEL='gpt-5.2-2025-12-11'
 ZSH_AI_CMD_OPENAI_BASE_URL='https://api.openai.com/v1/chat/completions'  # Custom OpenAI-compatible endpoint
 ZSH_AI_CMD_GEMINI_MODEL='gemini-3-flash-preview'

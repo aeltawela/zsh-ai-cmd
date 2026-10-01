@@ -2,6 +2,46 @@
 
 All notable changes to zsh-ai-cmd are documented in this file.
 
+## [v0.5.0] - 2026-09-28
+
+### Added
+
+- `ZSH_AI_CMD_ANTHROPIC_EFFORT` (`low`, `medium`, `high`, `xhigh`, `max`)
+  controls how much Anthropic models think before answering. The default is
+  `low`, which roughly halves latency on Opus models; set it to empty to send
+  none. It is ignored for Haiku and Sonnet 4.5 models, which reject it
+- Offline test for the Anthropic request payload and response parsing
+  (`test-anthropic-request.sh`)
+
+### Changed
+
+- The default Anthropic model is now `claude-opus-5-5` (with effort `low`),
+  replacing `claude-haiku-4-5-20251001`. If you rely on the default, expect
+  higher cost and latency: Opus 5.5 costs $4/$20 per million input/output
+  tokens against Haiku 4.5's $1/$5, and suggestions take about 2.5–3 s against
+  about 1.5 s. To keep Haiku, set
+  `ZSH_AI_CMD_ANTHROPIC_MODEL='claude-haiku-4-5-20251001'`
+
+### Fixed
+
+- Anthropic models with thinking always on (such as Claude Opus 5.5) return
+  suggestions: the answer is read from the first text block, since a thinking
+  block often comes first (#23)
+- Anthropic `max_tokens` is 4096, since thinking tokens count toward the limit
+  and a smaller cap can truncate the answer
+- Anthropic responses cut off at `max_tokens` or refused by the model print
+  the reason to stderr
+- Anthropic structured output is sent as `output_config.format`, which needs
+  no `anthropic-beta` header
+- Suggestions with incomplete shell syntax (unclosed quotes or blocks, a
+  trailing `&&` or `||`, heredocs, a dangling backslash, or `#` comments) are
+  dropped before they reach the command line, so accepting a suggestion never
+  leaves the shell at a continuation prompt; the prompt asks models for
+  single-line commands without heredocs or comments (#22, thanks @aeltawela)
+- External commands in the plugin and providers are called with the `command`
+  prefix so user aliases cannot change their behavior (#19, thanks
+  @OnCloud125252)
+
 ## [v0.4.0] - 2026-07-10
 
 ### Added
